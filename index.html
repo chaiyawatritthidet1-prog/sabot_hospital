@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SABOT HOSPITAL - Fabulous Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Modern Palette */
+            --primary-grad: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-grad: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-grad: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            --danger-grad: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --sidebar-bg: #1a1c23;
+            --bg-color: #f4f7fe;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --text-light: #888;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --radius: 20px;
+        }
+
+        body { font-family: 'Sarabun', sans-serif; background-color: var(--bg-color); margin: 0; overflow: hidden; color: var(--text-main); }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        /* --- LOGIN SCREEN --- */
+        #login-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--primary-grad); 
+            display: flex; justify-content: center; align-items: center; z-index: 9999; 
+        }
+        .login-box { 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 3.5rem; border-radius: 30px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
+            width: 420px; text-align: center; 
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.8s ease;
+        }
+        .login-box input { 
+            width: 100%; padding: 15px; margin: 12px 0; 
+            border: 2px solid #eee; border-radius: 12px; 
+            box-sizing: border-box; font-family: 'Sarabun'; font-size: 1rem; transition: 0.3s;
+        }
+        .login-box input:focus { border-color: #764ba2; outline: none; }
+
+        /* --- LAYOUT --- */
+        #app-container { display: none; display: flex; height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar { 
+            width: 280px; background: var(--sidebar-bg); color: white; 
+            display: flex; flex-direction: column; 
+            box-shadow: 5px 0 20px rgba(0,0,0,0.05);
+        }
+        .brand { 
+            padding: 40px 20px; text-align: center; font-size: 1.6rem; 
+            font-weight: 800; color: #fff; letter-spacing: 1px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .menu-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .menu-item { 
+            padding: 16px 20px; margin-bottom: 8px; cursor: pointer; border-radius: 12px;
+            transition: 0.3s; color: #a0aec0; display: flex; align-items: center; gap: 15px; font-weight: 500;
+        }
+        .menu-item:hover, .menu-item.active { 
+            background: var(--primary-grad); color: white; 
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4); transform: translateX(5px);
+        }
+        
+        /* Content */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; background: var(--bg-color); }
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: white; padding: 20px 30px; border-radius: var(--radius); 
+            margin-bottom: 30px; box-shadow: var(--shadow); 
+        }
+
+        .card { 
+            background: white; padding: 40px; border-radius: var(--radius); 
+            box-shadow: var(--shadow); margin-bottom: 25px; display: none; 
+            animation: fadeIn 0.4s ease-out; position: relative;
+        }
+        .card.active { display: block; }
+        
+        h3 { margin-top: 0; color: #444; font-weight: 700; font-size: 1.5rem; position: relative; padding-bottom: 15px; }
+        h3::after { content:''; position: absolute; bottom: 0; left: 0; width: 50px; height: 4px; background: var(--primary-grad); border-radius: 2px; }
+
+        /* Forms & Inputs */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px; }
+        .form-group label { display: block; margin-bottom: 10px; font-weight: 600; color: #555; font-size: 0.95rem; }
+        .form-group input, .form-group select, .form-group textarea { 
+            width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 12px; 
+            box-sizing: border-box; font-family: 'Sarabun'; font-size: 1rem; background: #f9fafb; transition: 0.3s;
+        }
+        .form-group input:focus { background: #fff; border-color: #764ba2; box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1); outline: none; }
+
+        /* Buttons */
+        .btn { 
+            padding: 14px 30px; border: none; border-radius: 12px; cursor: pointer; 
+            font-weight: 600; font-family: 'Sarabun'; transition: 0.3s; display: inline-flex; 
+            align-items: center; gap: 10px; justify-content: center; font-size: 1rem;
+        }
+        .btn-primary { background: var(--primary-grad); color: white; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+        .btn-print { background: #2d3748; color: white; }
+        .btn-danger { background: var(--danger-grad); color: white; }
+        .btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
+
+        /* Dashboard Widgets */
+        .stat-card {
+            padding: 25px; border-radius: 20px; color: white; position: relative; overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); transition: 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card h4 { margin: 0; opacity: 0.9; font-weight: 500; }
+        .stat-card h1 { margin: 10px 0 0 0; font-size: 3rem; font-weight: 800; }
+        .stat-card i { position: absolute; right: 20px; top: 20px; font-size: 4rem; opacity: 0.2; }
+
+        /* Tab System */
+        .tab-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+        .tab-btn { 
+            padding: 10px 20px; border: none; background: none; cursor: pointer; 
+            font-family: 'Sarabun'; font-weight: 600; color: #888; border-radius: 8px; transition: 0.3s;
+        }
+        .tab-btn.active { background: #eef2ff; color: #5a67d8; }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; margin-top: 10px; }
+        th { padding: 15px; text-align: left; color: #888; font-weight: 600; font-size: 0.9rem; }
+        td { background: #fff; padding: 20px; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; }
+        td:first-child { border-left: 1px solid #f0f0f0; border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        td:last-child { border-right: 1px solid #f0f0f0; border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+        tr:hover td { background: #fbfbfb; transform: scale(1.005); transition: 0.2s; }
+
+        /* Status & Badges */
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; }
+        .bg-green { background: #c6f6d5; color: #22543d; }
+        .bg-blue { background: #eef2ff; color: #5a67d8; }
+        
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <div style="background:white; width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; box-shadow:0 10px 20px rgba(0,0,0,0.1);">
+                <i class="fas fa-heartbeat fa-3x" style="color:#764ba2;"></i>
+            </div>
+            <h2 style="margin:0 0 5px 0; background:linear-gradient(to right, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SABOT HOSPITAL</h2>
+            <p style="color:#999; font-size:0.9rem; margin-bottom:30px;">ระบบบริหารจัดการโรงพยาบาลอัจฉริยะ</p>
+            
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            
+            <button class="btn btn-primary" style="width:100%; margin-top:20px; font-size:1.1rem;" onclick="login()">เข้าสู่ระบบ System</button>
+            <p id="login-error" style="color:#ff6b6b; margin-top:15px; height:20px; font-size:0.9rem;"></p>
+            <p onclick="forgotPasswordLogic()" style="margin-top:20px; color:#aaa; cursor:pointer; font-size:0.85rem; text-decoration:underline;">ลืมรหัสผ่าน / Emergency Unlock</p>
+        </div>
+    </div>
+
+    <div id="app-container">
+        <nav class="sidebar">
+            <div class="brand"><i class="fas fa-clinic-medical"></i> SABOT HIS</div>
+            <div class="menu-list">
+                <div class="menu-item active" onclick="nav('dashboard')"><i class="fas fa-th-large"></i> ภาพรวม (Dashboard)</div>
+                <div class="menu-item" onclick="nav('patient')"><i class="fas fa-user-injured"></i> 1. ระบบผู้ป่วย</div>
+                <div class="menu-item" onclick="nav('medicine')"><i class="fas fa-pills"></i> 2. ระบบยา</div>
+                <div class="menu-item" onclick="nav('staff')"><i class="fas fa-user-md"></i> 3. ระบบบุคลากร <span style="font-size:0.7rem; background:red; padding:2px 6px; border-radius:10px; color:white;">New</span></div>
+                <div class="menu-item" onclick="nav('surgery')"><i class="fas fa-procedures"></i> 4. ระบบผ่าตัด</div>
+                <div class="menu-item" onclick="nav('shift')"><i class="fas fa-user-clock"></i> 5-6. เข้า/ออกเวร <span style="font-size:0.7rem; background:orange; padding:2px 6px; border-radius:10px; color:white;">Upd</span></div>
+                <div class="menu-item" onclick="nav('transfer')"><i class="fas fa-ambulance"></i> 7. ย้ายผู้ป่วย</div>
+                <div class="menu-item" onclick="nav('logs')"><i class="fas fa-file-contract"></i> บันทึก & รายงาน</div>
+                <div class="menu-item" onclick="nav('settings')"><i class="fas fa-cog"></i> ตั้งค่าระบบ</div>
+            </div>
+            <div style="padding:20px; border-top:1px solid rgba(255,255,255,0.1);">
+                <div style="margin-bottom:10px; font-size:0.85rem; color:#718096;"><i class="fas fa-circle" style="color:#48bb78; font-size:0.6rem;"></i> User: <span id="sidebar-user" style="color:white; font-weight:bold;">Admin</span></div>
+                <button class="btn btn-danger" style="width:100%; padding:10px;" onclick="logout()">ออกจากระบบ</button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="header">
+                <div>
+                    <h2 style="margin:0; font-size:1.4rem; color:#2d3748;">ระบบบริหารจัดการโรงพยาบาล</h2>
+                    <p style="margin:0; font-size:0.9rem; color:#a0aec0;">ยินดีต้อนรับเข้าสู่การทำงานวันนี้</p>
+                </div>
+                <div style="text-align:right;">
+                    <div id="realtime-clock" style="font-size:1.5rem; font-weight:bold; color:#5a67d8;">00:00:00</div>
+                    <span class="status-badge bg-green">System Online</span>
+                </div>
+            </div>
+
+            <div id="dashboard" class="card active">
+                <h3>ภาพรวมสถานการณ์ (Overview)</h3>
+                <div class="form-grid" style="grid-template-columns: repeat(4, 1fr); margin-top:20px;">
+                    <div class="stat-card" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-users"></i>
+                        <h4>ผู้ป่วยวันนี้</h4>
+                        <h1>124</h1>
+                    </div>
+                    <div class="stat-card" style="background:linear-gradient(135deg, #2af598 0%, #009efd 100%);">
+                        <i class="fas fa-procedures"></i>
+                        <h4>ผ่าตัดรอคิว</h4>
+                        <h1>5</h1>
+                    </div>
+                    <div class="stat-card" style="background:linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); color:#555;">
+                        <i class="fas fa-user-nurse"></i>
+                        <h4 style="color:#555;">บุคลากร</h4>
+                        <h1 style="color:#333;" id="dash-staff-count">32</h1>
+                    </div>
+                    <div class="stat-card" style="background:linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);">
+                        <i class="fas fa-ambulance"></i>
+                        <h4>Refer Out</h4>
+                        <h1>2</h1>
+                    </div>
+                </div>
+            </div>
+
+            <div id="patient" class="card">
+                <h3><i class="fas fa-user-plus"></i> ลงทะเบียนผู้ป่วยใหม่</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>เลขบัตรประชาชน (ID Card)</label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="pt-idcard" placeholder="กรอกเลข 13 หลัก">
+                            <button class="btn btn-primary" onclick="smartCardSim()"><i class="fas fa-id-card"></i> อ่านบัตร</button>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>ชื่อ-นามสกุล</label><input type="text" id="pt-name"></div>
+                    <div class="form-group">
+                        <label>ที่อยู่ปัจจุบัน</label>
+                        <textarea id="pt-address" rows="3"></textarea>
+                    </div>
+                    <div class="form-group"><label>อาการเบื้องต้น</label><textarea id="pt-symptom" rows="3"></textarea></div>
+                </div>
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button class="btn btn-print" onclick="printPatient()"><i class="fas fa-print"></i> พิมพ์บัตร OPD</button>
+                    <button class="btn btn-primary" onclick="savePatient()"><i class="fas fa-save"></i> บันทึกข้อมูล</button>
+                </div>
+                
+                <div id="patient-actions" style="display:none; margin-top:30px; background:#f7fafc; padding:25px; border-radius:15px; text-align:center;">
+                    <h4 style="margin-top:0; color:#555;">เลือกขั้นตอนถัดไปสำหรับ: <span id="current-pt-name" style="color:#5a67d8;"></span></h4>
+                    <div style="display:flex; gap:20px; justify-content:center; margin-top:20px;">
+                        <button class="btn" style="background:white; color:#333; box-shadow:0 4px 6px rgba(0,0,0,0.05);" onclick="sendTo('medicine')"><i class="fas fa-pills" style="color:#48bb78;"></i> ส่งห้องยา</button>
+                        <button class="btn" style="background:white; color:#333; box-shadow:0 4px 6px rgba(0,0,0,0.05);" onclick="sendTo('surgery')"><i class="fas fa-procedures" style="color:#e53e3e;"></i> ส่งผ่าตัด</button>
+                        <button class="btn" style="background:white; color:#333; box-shadow:0 4px 6px rgba(0,0,0,0.05);" onclick="sendTo('transfer')"><i class="fas fa-ambulance" style="color:#ed8936;"></i> ส่ง Refer</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="medicine" class="card">
+                <h3>ระบบจ่ายยา (Pharmacy)</h3>
+                <div style="background:#ebf8ff; padding:20px; border-radius:15px; margin-bottom:25px; border-left:5px solid #4299e1;">
+                    <div class="form-grid">
+                        <div class="form-group"><label>ชื่อผู้ป่วย</label><input type="text" id="med-pt-name" readonly style="background:#e2e8f0;"></div>
+                        <div class="form-group"><label>รหัสบัตร</label><input type="text" id="med-pt-id" readonly style="background:#e2e8f0;"></div>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>ชื่อยา</label><input type="text" id="med-name"></div>
+                    <div class="form-group"><label>สรรพคุณ / วิธีใช้</label><input type="text" id="med-prop"></div>
+                    <div class="form-group"><label>จำนวน (เม็ด/ขวด)</label><input type="number" id="med-qty"></div>
+                </div>
+                <div class="btn-group" style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button class="btn btn-print" onclick="printMedLabel()"><i class="fas fa-print"></i> พิมพ์ฉลากยา</button>
+                    <button class="btn btn-primary" onclick="actionPrescribe()">ยืนยันการจ่ายยา</button>
+                </div>
+            </div>
+
+            <div id="staff" class="card">
+                <h3>ระบบจัดการบุคลากร (Staff Management)</h3>
+                
+                <div class="tab-nav">
+                    <button class="tab-btn active" onclick="switchStaffTab('add')"><i class="fas fa-user-plus"></i> เพิ่มบุคลากร (หน้า 1)</button>
+                    <button class="tab-btn" onclick="switchStaffTab('list')"><i class="fas fa-list"></i> รายชื่อบุคลากร (หน้า 2)</button>
+                </div>
+
+                <div id="staff-tab-add" class="tab-content active">
+                    <div style="background: linear-gradient(to right, #fdfbfb, #ebedee); padding:30px; border-radius:15px;">
+                        <h4 style="margin-top:0;"><i class="fas fa-pen-fancy"></i> ลงทะเบียนเจ้าหน้าที่ใหม่</h4>
+                        <div class="form-grid">
+                            <div class="form-group"><label>ชื่อ-นามสกุล</label><input type="text" id="staff-name-input" placeholder="เช่น นพ.สมชาย ใจดี"></div>
+                            <div class="form-group"><label>ตำแหน่ง (Position)</label>
+                                <select id="staff-pos-input">
+                                    <option value="แพทย์">แพทย์ (Doctor)</option>
+                                    <option value="พยาบาล">พยาบาล (Nurse)</option>
+                                    <option value="เภสัชกร">เภสัชกร (Pharmacist)</option>
+                                    <option value="เจ้าหน้าที่ทั่วไป">เจ้าหน้าที่ทั่วไป (Staff)</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>แผนก/หน้าที่ (Department)</label><input type="text" id="staff-dept-input" placeholder="เช่น อายุรกรรม, ห้องฉุกเฉิน"></div>
+                        </div>
+                        <button class="btn btn-primary" onclick="addNewStaff()"><i class="fas fa-plus-circle"></i> บันทึกข้อมูลบุคลากร</button>
+                    </div>
+                </div>
+
+                <div id="staff-tab-list" class="tab-content">
+                    <h4 style="margin-top:0;"><i class="fas fa-users"></i> ทำเนียบบุคลากร SABOT HOSPITAL</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ลำดับ</th>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th>ตำแหน่ง</th>
+                                <th>แผนก/หน้าที่</th>
+                                <th>สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-table-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="surgery" class="card">
+                <h3>ห้องผ่าตัด (Operating Room)</h3>
+                <div class="form-grid">
+                    <div class="form-group"><label>ผู้ป่วย</label><input type="text" id="surg-pt-name"></div>
+                    <div class="form-group"><label>วัน/เวลา นัดหมาย</label><input type="datetime-local" id="surg-date"></div>
+                    <div class="form-group"><label>ห้องผ่าตัด</label><select id="surg-room"><option>OR-01 (ห้องใหญ่)</option><option>OR-02 (ศัลยกรรม)</option><option>OR-03 (ฉุกเฉิน)</option></select></div>
+                </div>
+                <div style="text-align:right;">
+                    <button class="btn btn-print" onclick="printSurgery()"><i class="fas fa-print"></i> พิมพ์ใบนัด</button>
+                    <button class="btn btn-primary" onclick="actionSurgery()">จองห้องผ่าตัด</button>
+                </div>
+            </div>
+
+            <div id="shift" class="card">
+                <h3>ระบบลงเวลาปฏิบัติงาน (Time Attendance)</h3>
+                <div style="text-align:center; padding:20px;">
+                    
+                    <div style="max-width:400px; margin:0 auto 30px auto; text-align:left; background:#f7fafc; padding:20px; border-radius:15px; border:1px solid #e2e8f0;">
+                        <label style="font-weight:bold; color:#5a67d8; display:block; margin-bottom:10px;"><i class="fas fa-user-edit"></i> ลงชื่อผู้ปฏิบัติงาน (Required)</label>
+                        <input type="text" id="shift-staff-name" placeholder="พิมพ์ชื่อ-สกุล ของท่านที่นี่..." style="border:2px solid #5a67d8;">
+                        <p style="font-size:0.8rem; color:red; margin-top:5px;">* กรุณาพิมพ์ชื่อก่อนกดเข้า/ออกเวร</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <button class="btn" style="background:linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color:#005c4b; height:120px; font-size:1.8rem; flex-direction:column; box-shadow:0 10px 20px rgba(132, 250, 176, 0.4);" onclick="logShift('เข้าเวร')">
+                            <i class="fas fa-sun fa-2x"></i> เข้าเวร
+                        </button>
+                        <button class="btn" style="background:linear-gradient(135deg, #fa709a 0%, #fee140 100%); color:#740026; height:120px; font-size:1.8rem; flex-direction:column; box-shadow:0 10px 20px rgba(250, 112, 154, 0.4);" onclick="logShift('ออกเวร')">
+                            <i class="fas fa-moon fa-2x"></i> ออกเวร
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="transfer" class="card">
+                <h3>ระบบส่งตัวผู้ป่วย (Referral System)</h3>
+                <div class="form-grid">
+                    <div class="form-group"><label>ผู้ป่วย</label><input type="text" id="trans-pt-name"></div>
+                    <div class="form-group"><label>โรงพยาบาลปลายทาง</label><input type="text" id="trans-dest" placeholder="เช่น รพ.ลพบุรี"></div>
+                    <div class="form-group"><label>สาเหตุการส่งตัว</label><input type="text" id="trans-reason" placeholder="เครื่องมือไม่เพียงพอ / ต้องการแพทย์เฉพาะทาง"></div>
+                </div>
+                <div style="text-align:right;">
+                    <button class="btn btn-print" onclick="printRefer()"><i class="fas fa-print"></i> ใบส่งตัว</button>
+                    <button class="btn btn-primary" onclick="actionTransfer()">สร้างเคส Refer</button>
+                </div>
+            </div>
+
+            <div id="logs" class="card">
+                <div style="display:flex; justify-content:space-between;">
+                    <h3>บันทึกการใช้งาน (System Logs)</h3>
+                    <button class="btn btn-print" onclick="printLogReport()"><i class="fas fa-print"></i> Print Report</button>
+                </div>
+                <table>
+                    <thead><tr><th>เวลา</th><th>ระบบ</th><th>กิจกรรม</th><th>ผู้ป่วย/เป้าหมาย</th><th>ผู้ทำรายการ</th></tr></thead>
+                    <tbody id="main-log-body"></tbody>
+                </table>
+            </div>
+
+            <div id="settings" class="card">
+                <h3>ตั้งค่าระบบ (Settings)</h3>
+                <div style="max-width:500px;">
+                    <div class="form-group"><label>แก้ไข Username</label><input type="text" id="set-username"></div>
+                    <div class="form-group"><label>แก้ไข Password</label><input type="password" id="set-password"></div>
+                    <button class="btn btn-primary" onclick="saveSettings()">บันทึกการตั้งค่า</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- DATA & CONFIG ---
+        let config = {
+            user: localStorage.getItem('app_user') || 'sabothospital1',
+            pass: localStorage.getItem('app_pass') || '0000'
+        };
+        let currentPatient = null;
+        let logsDatabase = [];
+        
+        // Mock Data: Staff
+        let staffDatabase = [
+            { name: "นพ.อำนวย รักษาดี", position: "แพทย์", dept: "ผู้อำนวยการ" },
+            { name: "พญ.ใจใส ดูแลใจ", position: "แพทย์", dept: "กุมารเวช" },
+            { name: "คุณสมศรี มีสุข", position: "พยาบาล", dept: "หัวหน้าตึกผู้ป่วยใน" }
+        ];
+
+        document.getElementById('username').value = config.user;
+
+        // --- CORE UI ---
+        function nav(page) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            document.getElementById(page).classList.add('active');
+            
+            // Highlight Menu
+            // (Simple loop to find index matching page)
+            
+            if(page === 'logs') renderLogs();
+            if(page === 'staff') renderStaffTable();
+            if(page === 'settings') {
+                document.getElementById('set-username').value = config.user;
+                document.getElementById('set-password').value = config.pass;
+            }
+        }
+        
+        function updateClock() { document.getElementById('realtime-clock').innerText = new Date().toLocaleTimeString('th-TH'); }
+        setInterval(updateClock, 1000);
+
+        // --- AUTH ---
+        function login() {
+            if (document.getElementById('username').value === config.user && document.getElementById('password').value === config.pass) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-container').style.display = 'flex';
+                document.getElementById('sidebar-user').innerText = config.user;
+                nav('dashboard');
+                addLog('System', 'Login Success', '-', config.user);
+            } else {
+                document.getElementById('login-error').innerText = 'ข้อมูลไม่ถูกต้อง กรุณาลองใหม่';
+                document.querySelector('.login-box').style.animation = 'none';
+                setTimeout(() => document.querySelector('.login-box').style.animation = 'pulse 0.3s', 10);
+            }
+        }
+        function logout() { location.reload(); }
+        
+        function forgotPasswordLogic() {
+            let code = prompt("Enter Master Code (0000):");
+            if(code === '0000') { config.pass = '0000'; alert('Unlocked! Pass: 0000'); document.getElementById('password').value = '0000'; }
+        }
+        
+        function saveSettings() {
+            config.user = document.getElementById('set-username').value;
+            config.pass = document.getElementById('set-password').value;
+            localStorage.setItem('app_user', config.user);
+            localStorage.setItem('app_pass', config.pass);
+            alert('Saved!');
+        }
+
+        // --- STAFF SYSTEM (NEW) ---
+        function switchStaffTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`staff-tab-${tabName}`).classList.add('active');
+            // Find button logic (simplified for clarity)
+            if(tabName === 'add') document.querySelector('.tab-nav button:nth-child(1)').classList.add('active');
+            else document.querySelector('.tab-nav button:nth-child(2)').classList.add('active');
+
+            if(tabName === 'list') renderStaffTable();
+        }
+
+        function addNewStaff() {
+            const name = document.getElementById('staff-name-input').value;
+            const pos = document.getElementById('staff-pos-input').value;
+            const dept = document.getElementById('staff-dept-input').value;
+
+            if(!name || !dept) { alert('กรุณากรอกข้อมูลให้ครบถ้วน'); return; }
+
+            staffDatabase.push({ name, position: pos, dept });
+            alert(`บันทึกข้อมูล: ${name} เรียบร้อยแล้ว`);
+            
+            // Clear inputs
+            document.getElementById('staff-name-input').value = '';
+            document.getElementById('staff-dept-input').value = '';
+            
+            // Auto switch to list
+            switchStaffTab('list');
+            document.getElementById('dash-staff-count').innerText = staffDatabase.length; // Update Dashboard
+        }
+
+        function renderStaffTable() {
+            const tbody = document.getElementById('staff-table-body');
+            tbody.innerHTML = '';
+            staffDatabase.forEach((s, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:bold; color:#aaa;">#${index+1}</td>
+                        <td style="font-weight:bold; color:#333;">${s.name}</td>
+                        <td><span class="status-badge bg-blue">${s.position}</span></td>
+                        <td>${s.dept}</td>
+                        <td><span class="status-badge bg-green">Active</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- SHIFT SYSTEM (UPDATED) ---
+        function logShift(type) {
+            const signerName = document.getElementById('shift-staff-name').value;
+            
+            if(!signerName.trim()) {
+                alert("⛔ กรุณาพิมพ์ชื่อผู้ปฏิบัติงานก่อนทำการลงเวลา");
+                document.getElementById('shift-staff-name').focus();
+                return;
+            }
+
+            addLog('Time Attendance', type, '-', signerName);
+            alert(`✅ บันทึกเวลา [${type}] \nโดย: ${signerName}\nเรียบร้อยแล้ว`);
+        }
+
+        // --- LOGIC: GENERAL ---
+        function addLog(sys, act, pt, actor) {
+            logsDatabase.unshift({ date: new Date(), sys, act, pt, actor: actor || config.user });
+        }
+        
+        function renderLogs() {
+            const tb = document.getElementById('main-log-body');
+            tb.innerHTML = '';
+            logsDatabase.forEach(l => {
+                tb.innerHTML += `<tr><td>${l.date.toLocaleString('th-TH')}</td><td><span class="status-badge bg-blue">${l.sys}</span></td><td>${l.act}</td><td>${l.pt}</td><td>${l.actor}</td></tr>`;
+            });
+        }
+
+        function smartCardSim() {
+            document.getElementById('pt-name').value = "นายทดสอบ รักษาดี";
+            document.getElementById('pt-address').value = "123 ต.ในเมือง อ.เมือง จ.ลพบุรี";
+        }
+
+        function savePatient() {
+            const name = document.getElementById('pt-name').value;
+            if(!name) return alert('ระบุชื่อผู้ป่วย');
+            currentPatient = { name, id: document.getElementById('pt-idcard').value };
+            document.getElementById('patient-actions').style.display = 'block';
+            document.getElementById('current-pt-name').innerText = name;
+            addLog('เวชระเบียน', 'ลงทะเบียนผู้ป่วยใหม่', name);
+            alert('บันทึกข้อมูลเรียบร้อย');
+        }
+
+        function sendTo(sys) {
+            nav(sys);
+            if(currentPatient) {
+                setTimeout(() => {
+                    if(sys==='medicine') { document.getElementById('med-pt-name').value = currentPatient.name; document.getElementById('med-pt-id').value = currentPatient.id; }
+                    if(sys==='surgery') { document.getElementById('surg-pt-name').value = currentPatient.name; }
+                    if(sys==='transfer') { document.getElementById('trans-pt-name').value = currentPatient.name; }
+                }, 100);
+            }
+        }
+
+        // --- ACTIONS ---
+        function actionPrescribe() { addLog('ห้องยา', `จ่ายยา: ${document.getElementById('med-name').value}`, document.getElementById('med-pt-name').value); alert('บันทึกการจ่ายยาแล้ว'); }
+        function actionSurgery() { addLog('ห้องผ่าตัด', 'จองคิวผ่าตัด', document.getElementById('surg-pt-name').value); alert('จองห้องผ่าตัดแล้ว'); }
+        function actionTransfer() { addLog('Referral', `ส่งตัวไป ${document.getElementById('trans-dest').value}`, document.getElementById('trans-pt-name').value); alert('สร้างใบส่งตัวแล้ว'); }
+
+        // --- PRINT ---
+        function printWindow(title, content) {
+            const w = window.open('','','width=800,height=600');
+            w.document.write(`<html><head><title>${title}</title><link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet"><style>body{font-family:'Sarabun'; padding:40px;} .head{text-align:center; border-bottom:2px solid #333; margin-bottom:20px; padding-bottom:10px;} h2{margin:0;}</style></head><body><div class="head"><h2>SABOT HOSPITAL</h2><p>${title}</p></div>${content}<div style="margin-top:50px; text-align:right;">ลงชื่อเจ้าหน้าที่..................................</div><script>window.print();window.close();<\/script></body></html>`);
+            w.document.close();
+        }
+        function printPatient() { printWindow('บัตร OPD', `<p><b>ชื่อ:</b> ${document.getElementById('pt-name').value}</p><p><b>ID:</b> ${document.getElementById('pt-idcard').value}</p><p><b>ที่อยู่:</b> ${document.getElementById('pt-address').value}</p>`); }
+        function printMedLabel() { printWindow('ฉลากยา', `<div style="border:1px solid #000; padding:20px; text-align:center;"><h3>${document.getElementById('med-name').value}</h3><p>${document.getElementById('med-prop').value}</p><hr><p>คุณ: ${document.getElementById('med-pt-name').value}</p></div>`); }
+        function printSurgery() { printWindow('ใบนัดผ่าตัด', `<p>ผู้ป่วย: ${document.getElementById('surg-pt-name').value}</p><p>วันเวลา: ${document.getElementById('surg-date').value}</p><p>ห้อง: ${document.getElementById('surg-room').value}</p>`); }
+        function printRefer() { printWindow('ใบส่งตัว (Referral)', `<p>ผู้ป่วย: ${document.getElementById('trans-pt-name').value}</p><p>ไปยัง: ${document.getElementById('trans-dest').value}</p><p>สาเหตุ: ${document.getElementById('trans-reason').value}</p>`); }
+        function printLogReport() { printWindow('System Logs', document.querySelector('#logs table').outerHTML); }
+
+    </script>
+</body>
+</html>
